@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMS.RAY - Пополнение USDT</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ВАЖНО: Этот тег должен быть здесь -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -351,8 +352,9 @@
         </div>
     </div>
 
+    <!-- ВАЖНО: Весь этот JavaScript код должен быть здесь -->
     <script>
-        // ⚠️ ВАЖНО: ЗАМЕНИ ЭТИ ДАННЫЕ НА СВОИ!
+        // ⚠️ ТВОИ НАСТРОЙКИ
         const SUPABASE_CONFIG = {
             url: 'https://kktwmhmgzladegmvdgyb.supabase.co',
             anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrdHdtaG1nemxhZGVnbXZkZ3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MDk2ODYsImV4cCI6MjA4NTM4NTY4Nn0.LZUUS8p1cNHQmIS9mZxusMy__29SL2LhGGXQyk2C6ZU'
@@ -362,8 +364,8 @@
         
         // Настройки приложения
         const APP_CONFIG = {
-            tronAddress: "TY5Fz4p8r7v2nQ9wX3bLm6kJhGdRcVtSs", // Твой TRON адрес
-            usdtRate: 90, // Курс USDT
+            tronAddress: "TY5Fz4p8r7v2nQ9wX3bLm6kJhGdRcVtSs",
+            usdtRate: 90,
             minAmount: 100,
             maxAmount: 100000
         };
@@ -419,23 +421,14 @@
             showStatus('Создаем заявку...', 'pending');
             
             try {
-                // 1. Создаем запись в базе
-                const paymentData = {
-                    user_id: userId,
-                    amount_rub: selectedAmount,
-                    amount_usdt: usdtAmount,
-                    tron_address: APP_CONFIG.tronAddress,
-                    status: 'pending'
-                };
-                
-                // 2. Отправляем в функцию Telegram
+                // Отправляем в функцию Telegram
                 const response = await fetch(`${FUNCTION_URL}/send-telegram-notification`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        payment_id: 'pay_' + Date.now(),
+                        payment_id: 'pay_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                         amount_rub: selectedAmount,
                         amount_usdt: usdtAmount,
                         user_id: userId
