@@ -1,1 +1,0 @@
-# smsray-payments
