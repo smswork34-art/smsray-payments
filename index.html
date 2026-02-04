@@ -6,68 +6,192 @@
   <title>Blackjack в Telegram</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap');
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #1c1c1c;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #111122);
       color: white;
       text-align: center;
       margin: 0;
       padding: 20px;
+      min-height: 100vh;
+      overflow: hidden;
     }
+
     .container {
       max-width: 500px;
       margin: 0 auto;
       padding: 20px;
     }
-    .card-area {
-      margin: 20px 0;
-      font-size: 1.5em;
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
     }
+
+    p.subtitle {
+      color: #aaa;
+      font-size: 0.9em;
+      margin-bottom: 30px;
+    }
+
+    .score-board {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+      margin: 20px 0;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .score-item {
+      font-size: 1.2em;
+    }
+
+    .score-label {
+      color: #ccc;
+      font-size: 0.9em;
+    }
+
+    .cards-container {
+      margin: 30px 0;
+      min-height: 120px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .card {
+      width: 60px;
+      height: 90px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+      background: white;
+      color: black;
+      font-weight: bold;
+      font-size: 14px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+      transform-style: preserve-3d;
+    }
+
+    .card.animate {
+      animation: popIn 0.3s forwards;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .card.red { color: #d00; }
+    .card.black { color: #000; }
+
+    /* SVG стили внутри карточки */
+    .card svg {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+    }
+
+    .controls {
+      margin: 30px 0;
+    }
+
     button {
-      background-color: #007AFF;
+      background: linear-gradient(45deg, #007AFF, #00CFFF);
       color: white;
       border: none;
-      padding: 12px 24px;
+      padding: 14px 28px;
       margin: 10px;
-      border-radius: 8px;
+      border-radius: 12px;
       font-size: 1em;
+      font-weight: 600;
       cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4);
+      transition: all 0.3s ease;
     }
+
+    button:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 8px rgba(0, 122, 255, 0.4);
+    }
+
     button:disabled {
-      background-color: #555;
+      background: #555;
       cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
     }
-    .score {
-      font-size: 1.2em;
-      margin: 10px 0;
+
+    .result-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 30px 50px;
+      border-radius: 16px;
+      font-size: 1.5em;
+      font-weight: bold;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+      z-index: 100;
+      display: none;
+      animation: fadeIn 0.4s forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -40%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🃏 Блэкджек</h1>
-    <p>Цель: набрать 21 или ближе к 21, чем дилер</p>
+    <h1>🃏 BlackJack</h1>
+    <p class="subtitle">Набери 21 или побей дилера!</p>
 
-    <div class="score">
-      Ты: <span id="player-score">0</span> | Дилер: <span id="dealer-score">0</span>
+    <div class="score-board">
+      <div class="score-item">
+        <div class="score-label">Ты</div>
+        <div id="player-score">0</div>
+      </div>
+      <div class="score-item">
+        <div class="score-label">Дилер</div>
+        <div id="dealer-score">0</div>
+      </div>
     </div>
 
-    <div class="card-area">
-      <p><strong>Твои карты:</strong> <span id="player-cards"></span></p>
-      <p><strong>Карты дилера:</strong> <span id="dealer-cards"></span></p>
-    </div>
+    <h3>Твои карты</h3>
+    <div id="player-cards" class="cards-container"></div>
 
-    <button id="start-btn">Начать игру</button>
-    <button id="hit-btn" disabled>Взять карту</button>
-    <button id="stand-btn" disabled>Пас</button>
+    <h3>Карты дилера</h3>
+    <div id="dealer-cards" class="cards-container"></div>
+
+    <div class="controls">
+      <button id="start-btn">▶ Начать</button>
+      <button id="hit-btn" disabled>✚ Взять</button>
+      <button id="stand-btn" disabled>✋ Пас</button>
+    </div>
   </div>
 
+  <!-- Popup для результата -->
+  <div id="result-popup" class="result-popup">🎉 Ты выиграл!</div>
+
   <script>
-    // Инициализация Telegram WebApp
     const tg = window.Telegram?.WebApp;
     tg.ready();
 
-    // Элементы DOM
+    // Элементы
     const playerCardsEl = document.getElementById("player-cards");
     const dealerCardsEl = document.getElementById("dealer-cards");
     const playerScoreEl = document.getElementById("player-score");
@@ -75,8 +199,9 @@
     const startBtn = document.getElementById("start-btn");
     const hitBtn = document.getElementById("hit-btn");
     const standBtn = document.getElementById("stand-btn");
+    const resultPopup = document.getElementById("result-popup");
 
-    // Колода карт
+    // Масти и значения
     const suits = ['♠', '♥', '♦', '♣'];
     const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 
@@ -92,7 +217,6 @@
           deck.push({ suit, value });
         }
       }
-      // Перемешивание
       deck.sort(() => Math.random() - 0.5);
     }
 
@@ -106,7 +230,6 @@
     // Подсчёт очков с учётом туза
     function calculateScore(cards) {
       let score = cards.reduce((sum, card) => sum + getCardValue(card), 0);
-      // Если есть тузы и перебор — меняем значение туза на 1
       const aces = cards.filter(c => c.value === 'A');
       for (let ace of aces) {
         if (score > 21) score -= 10;
@@ -114,34 +237,50 @@
       return score;
     }
 
-    // Отображение карт
+    // Генерация SVG-карты
+    function createCardSvg(card) {
+      const isRed = card.suit === '♥' || card.suit === '♦';
+      const color = isRed ? '#d00' : '#000';
+      return `
+        <svg viewBox="0 0 60 90" xmlns="http://www.w3.org/2000/svg">
+          <rect width="60" height="90" rx="10" fill="white" stroke="${color}" stroke-width="2"/>
+          <text x="8" y="18" font-size="14" fill="${color}">${card.value}</text>
+          <text x="48" y="82" font-size="14" fill="${color}" text-anchor="end">${card.value}</text>
+          <text x="30" y="52" font-size="20" fill="${color}" text-anchor="middle">${card.suit}</text>
+        </svg>
+      `;
+    }
+
+    // Отрисовка карт
     function renderCards() {
-      playerCardsEl.textContent = playerCards.map(c => `${c.value}${c.suit}`).join(' ');
-      dealerCardsEl.textContent = dealerCards.map(c => `${c.value}${c.suit}`).join(' ');
+      playerCardsEl.innerHTML = '';
+      dealerCardsEl.innerHTML = '';
+
+      playerCards.forEach(card => {
+        const cardEl = document.createElement('div');
+        cardEl.className = `card ${card.suit === '♥' || card.suit === '♦' ? 'red' : 'black'} animate`;
+        cardEl.innerHTML = createCardSvg(card);
+        playerCardsEl.appendChild(cardEl);
+      });
+
+      dealerCards.forEach(card => {
+        const cardEl = document.createElement('div');
+        cardEl.className = `card ${card.suit === '♥' || card.suit === '♦' ? 'red' : 'black'} animate`;
+        cardEl.innerHTML = createCardSvg(card);
+        dealerCardsEl.appendChild(cardEl);
+      });
+
       playerScoreEl.textContent = calculateScore(playerCards);
       dealerScoreEl.textContent = calculateScore(dealerCards);
     }
 
-    // Ход дилера
-    function dealerPlay() {
-      while (calculateScore(dealerCards) < 17) {
-        dealerCards.push(deck.pop());
-      }
-      renderCards();
-      const playerScore = calculateScore(playerCards);
-      const dealerScore = calculateScore(dealerCards);
-
-      let result = '';
-      if (dealerScore > 21 || playerScore > dealerScore) {
-        result = '🎉 Ты выиграл!';
-      } else if (playerScore < dealerScore) {
-        result = '💀 Ты проиграл!';
-      } else {
-        result = '🤝 Ничья!';
-      }
-
-      alert(result);
-      endGame();
+    // Показ результата
+    function showResult(message) {
+      resultPopup.textContent = message;
+      resultPopup.style.display = 'block';
+      setTimeout(() => {
+        resultPopup.style.display = 'none';
+      }, 2000);
     }
 
     // Конец игры
@@ -151,7 +290,33 @@
       startBtn.disabled = false;
     }
 
-    // Начало новой игры
+    // Ход дилера
+    function dealerPlay() {
+      const interval = setInterval(() => {
+        const score = calculateScore(dealerCards);
+        if (score < 17) {
+          dealerCards.push(deck.pop());
+          renderCards();
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            const playerScore = calculateScore(playerCards);
+            const dealerScore = calculateScore(dealerCards);
+
+            if (dealerScore > 21 || playerScore > dealerScore) {
+              showResult('🎉 Ты выиграл!');
+            } else if (playerScore < dealerScore) {
+              showResult('💀 Проиграл!');
+            } else {
+              showResult('🤝 Ничья!');
+            }
+            endGame();
+          }, 500);
+        }
+      }, 600);
+    }
+
+    // Начать игру
     function startGame() {
       createDeck();
       playerCards = [deck.pop(), deck.pop()];
@@ -162,20 +327,20 @@
       hitBtn.disabled = false;
       standBtn.disabled = false;
 
-      // Проверка на блэкджек
+      // Блэкджек?
       if (calculateScore(playerCards) === 21) {
-        alert('✨ Блэкджек! Ты выиграл!');
+        showResult('✨ Блэкджек!');
         endGame();
       }
     }
 
-    // Обработчики кнопок
+    // Обработчики
     startBtn.addEventListener('click', startGame);
     hitBtn.addEventListener('click', () => {
       playerCards.push(deck.pop());
       renderCards();
       if (calculateScore(playerCards) > 21) {
-        alert('💔 Перебор! Ты проиграл!');
+        showResult('💔 Перебор!');
         endGame();
       }
     });
