@@ -1,476 +1,187 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMS.RAY - Пополнение USDT</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- ВАЖНО: Этот тег должен быть здесь -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #2a2d3e 0%, #1a1c2b 100%);
-            color: white;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background-color: #121212;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-        }
-        
-        .header {
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            background-color: #000000;
-            border-bottom: 1px solid #2a2d3e;
-        }
-        
-        .back-btn {
-            color: #ffffff;
-            font-size: 20px;
-            cursor: pointer;
-            opacity: 0.7;
-            margin-right: 15px;
-            text-decoration: none;
-        }
-        
-        .title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #ffffff;
-        }
-        
-        .content {
-            padding: 25px;
-        }
-        
-        .payment-method {
-            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid #3a3a3a;
-        }
-        
-        .method-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .method-icon {
-            font-size: 32px;
-            color: #26a17b;
-        }
-        
-        .method-title {
-            font-size: 22px;
-            font-weight: 700;
-        }
-        
-        .method-subtitle {
-            color: #8a8a8a;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-        
-        .amount-selection {
-            margin: 25px 0;
-        }
-        
-        .amount-label {
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #a0a0a0;
-        }
-        
-        .amount-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .amount-btn {
-            padding: 15px;
-            background: #2a2a2a;
-            border: 1px solid #3a3a3a;
-            border-radius: 12px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        
-        .amount-btn.active {
-            background: linear-gradient(135deg, #26a17b 0%, #1d8b6b 100%);
-            border-color: #26a17b;
-        }
-        
-        .payment-info {
-            background: #1a1a1a;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #2a2a2a;
-        }
-        
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        
-        .info-label {
-            color: #a0a0a0;
-        }
-        
-        .info-value {
-            font-weight: 600;
-        }
-        
-        .address-box {
-            background: #000000;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px solid #26a17b;
-        }
-        
-        .address-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .address-label {
-            color: #26a17b;
-            font-weight: 600;
-        }
-        
-        .copy-btn {
-            background: #26a17b;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .address-value {
-            font-family: monospace;
-            font-size: 14px;
-            word-break: break-all;
-            padding: 15px;
-            background: #1a1a1a;
-            border-radius: 8px;
-            border: 1px solid #2a2a2a;
-        }
-        
-        .instructions {
-            background: rgba(38, 161, 123, 0.05);
-            border: 1px solid rgba(38, 161, 123, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .instructions ol {
-            margin-left: 20px;
-            margin-top: 10px;
-        }
-        
-        .instructions li {
-            margin-bottom: 10px;
-            color: #a0a0a0;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-        
-        .btn {
-            flex: 1;
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #26a17b 0%, #1d8b6b 100%);
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: #2a2a2a;
-            color: white;
-            border: 1px solid #3a3a3a;
-        }
-        
-        .status-message {
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 20px;
-            text-align: center;
-            display: none;
-        }
-        
-        .status-success {
-            background: rgba(38, 161, 123, 0.1);
-            border: 1px solid #26a17b;
-            color: #26a17b;
-        }
-        
-        .status-pending {
-            background: rgba(255, 193, 7, 0.1);
-            border: 1px solid #ffc107;
-            color: #ffc107;
-        }
-        
-        .status-error {
-            background: rgba(220, 53, 69, 0.1);
-            border: 1px solid #dc3545;
-            color: #dc3545;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blackjack в Telegram</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1c1c1c;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .card-area {
+      margin: 20px 0;
+      font-size: 1.5em;
+    }
+    button {
+      background-color: #007AFF;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      margin: 10px;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+    .score {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <a href="#" class="back-btn" onclick="goBack()">
-                <i class="fas fa-arrow-left"></i>
-            </a>
-            <div class="title">Пополнение баланса USDT (TRON)</div>
-        </div>
-        
-        <div class="content">
-            <div class="payment-method">
-                <div class="method-header">
-                    <div class="method-icon">
-                        <i class="fab fa-usd"></i>
-                    </div>
-                    <div>
-                        <div class="method-title">USDT (TRC20)</div>
-                        <div class="method-subtitle">Сеть TRON, комиссия 0%</div>
-                    </div>
-                </div>
-                
-                <div class="amount-selection">
-                    <div class="amount-label">Выберите сумму для пополнения:</div>
-                    <div class="amount-buttons">
-                        <button class="amount-btn" data-amount="100">100 ₽</button>
-                        <button class="amount-btn" data-amount="500">500 ₽</button>
-                        <button class="amount-btn" data-amount="1000">1 000 ₽</button>
-                        <button class="amount-btn" data-amount="3000">3 000 ₽</button>
-                        <button class="amount-btn" data-amount="5000">5 000 ₽</button>
-                        <button class="amount-btn" data-amount="10000">10 000 ₽</button>
-                    </div>
-                </div>
-                
-                <div class="payment-info">
-                    <div class="info-row">
-                        <div class="info-label">Сумма к оплате:</div>
-                        <div class="info-value" id="amountRUB">500 ₽</div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">Курс USDT:</div>
-                        <div class="info-value">1 USDT = 90 ₽</div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">К оплате в USDT:</div>
-                        <div class="info-value" id="amountUSDT">5.56 USDT</div>
-                    </div>
-                </div>
-                
-                <div class="address-box">
-                    <div class="address-header">
-                        <div class="address-label">Адрес для оплаты (TRC20):</div>
-                        <button class="copy-btn" onclick="copyAddress()">
-                            <i class="far fa-copy"></i> Копировать
-                        </button>
-                    </div>
-                    <div class="address-value" id="tronAddress">
-                        TY5Fz4p8r7v2nQ9wX3bLm6kJhGdRcVtSs
-                    </div>
-                </div>
-                
-                <div class="instructions">
-                    <h4 style="margin-bottom: 10px; color: #26a17b;">Инструкция:</h4>
-                    <ol>
-                        <li>Переведите <strong id="instructionAmount">5.56 USDT</strong> на указанный адрес</li>
-                        <li>Дождитесь 2 подтверждений в сети TRON</li>
-                        <li>Нажмите кнопку "Я оплатил" ниже</li>
-                        <li>Ожидайте проверки администратором</li>
-                    </ol>
-                </div>
-                
-                <div class="actions">
-                    <button class="btn btn-secondary" onclick="checkPayment()">
-                        <i class="fas fa-sync-alt"></i> Проверить
-                    </button>
-                    <button class="btn btn-primary" onclick="createPayment()">
-                        <i class="fas fa-check-circle"></i> Я оплатил
-                    </button>
-                </div>
-                
-                <div id="statusMessage" class="status-message">
-                    <!-- Сообщения будут здесь -->
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <h1>🃏 Блэкджек</h1>
+    <p>Цель: набрать 21 или ближе к 21, чем дилер</p>
+
+    <div class="score">
+      Ты: <span id="player-score">0</span> | Дилер: <span id="dealer-score">0</span>
     </div>
 
-    <!-- ВАЖНО: Весь этот JavaScript код должен быть здесь -->
-    <script>
-        // ⚠️ ТВОИ НАСТРОЙКИ
-        const SUPABASE_CONFIG = {
-            url: 'https://kktwmhmgzladegmvdgyb.supabase.co',
-            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrdHdtaG1nemxhZGVnbXZkZ3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4MDk2ODYsImV4cCI6MjA4NTM4NTY4Nn0.LZUUS8p1cNHQmIS9mZxusMy__29SL2LhGGXQyk2C6ZU'
-        };
-        
-        const FUNCTION_URL = 'https://kktwmhmgzladegmvdgyb.supabase.co/functions/v1';
-        
-        // Настройки приложения
-        const APP_CONFIG = {
-            tronAddress: "TY5Fz4p8r7v2nQ9wX3bLm6kJhGdRcVtSs",
-            usdtRate: 90,
-            minAmount: 100,
-            maxAmount: 100000
-        };
-        
-        // Инициализация
-        let selectedAmount = 500;
-        let currentPaymentId = null;
-        let userId = null;
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            initUser();
-            setupAmountButtons();
-        });
-        
-        function initUser() {
-            userId = localStorage.getItem('smsray_user_id');
-            if (!userId) {
-                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('smsray_user_id', userId);
-            }
+    <div class="card-area">
+      <p><strong>Твои карты:</strong> <span id="player-cards"></span></p>
+      <p><strong>Карты дилера:</strong> <span id="dealer-cards"></span></p>
+    </div>
+
+    <button id="start-btn">Начать игру</button>
+    <button id="hit-btn" disabled>Взять карту</button>
+    <button id="stand-btn" disabled>Пас</button>
+  </div>
+
+  <script>
+    // Инициализация Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    tg.ready();
+
+    // Элементы DOM
+    const playerCardsEl = document.getElementById("player-cards");
+    const dealerCardsEl = document.getElementById("dealer-cards");
+    const playerScoreEl = document.getElementById("player-score");
+    const dealerScoreEl = document.getElementById("dealer-score");
+    const startBtn = document.getElementById("start-btn");
+    const hitBtn = document.getElementById("hit-btn");
+    const standBtn = document.getElementById("stand-btn");
+
+    // Колода карт
+    const suits = ['♠', '♥', '♦', '♣'];
+    const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+    let deck = [];
+    let playerCards = [];
+    let dealerCards = [];
+
+    // Создание колоды
+    function createDeck() {
+      deck = [];
+      for (let suit of suits) {
+        for (let value of values) {
+          deck.push({ suit, value });
         }
-        
-        function setupAmountButtons() {
-            document.querySelectorAll('.amount-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    selectedAmount = parseInt(this.dataset.amount);
-                    updateAmounts();
-                });
-            });
-            
-            // Выбираем 500 ₽ по умолчанию
-            document.querySelector('.amount-btn[data-amount="500"]').click();
-        }
-        
-        function updateAmounts() {
-            const usdtAmount = (selectedAmount / APP_CONFIG.usdtRate).toFixed(2);
-            document.getElementById('amountRUB').textContent = selectedAmount.toLocaleString('ru-RU') + ' ₽';
-            document.getElementById('amountUSDT').textContent = usdtAmount + ' USDT';
-            document.getElementById('instructionAmount').textContent = usdtAmount + ' USDT';
-        }
-        
-        function copyAddress() {
-            navigator.clipboard.writeText(APP_CONFIG.tronAddress).then(() => {
-                showStatus('Адрес скопирован!', 'success');
-            });
-        }
-        
-        async function createPayment() {
-            const usdtAmount = (selectedAmount / APP_CONFIG.usdtRate).toFixed(2);
-            
-            showStatus('Создаем заявку...', 'pending');
-            
-            try {
-                // Отправляем в функцию Telegram
-                const response = await fetch(`${FUNCTION_URL}/send-telegram-notification`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        payment_id: 'pay_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                        amount_rub: selectedAmount,
-                        amount_usdt: usdtAmount,
-                        user_id: userId
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showStatus('✅ Заявка создана! Админ уведомлен.', 'success');
-                } else {
-                    showStatus('Ошибка: ' + result.error, 'error');
-                }
-                
-            } catch (error) {
-                showStatus('Ошибка: ' + error.message, 'error');
-            }
-        }
-        
-        function checkPayment() {
-            showStatus('Проверка статуса...', 'pending');
-            setTimeout(() => {
-                showStatus('Статус: Ожидание подтверждения', 'pending');
-            }, 1000);
-        }
-        
-        function showStatus(message, type) {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.textContent = message;
-            statusDiv.className = 'status-message status-' + type;
-            statusDiv.style.display = 'block';
-            
-            if (type !== 'pending') {
-                setTimeout(() => {
-                    statusDiv.style.display = 'none';
-                }, 5000);
-            }
-        }
-        
-        function goBack() {
-            window.history.back();
-        }
-    </script>
+      }
+      // Перемешивание
+      deck.sort(() => Math.random() - 0.5);
+    }
+
+    // Значение карты
+    function getCardValue(card) {
+      if (['J', 'Q', 'K'].includes(card.value)) return 10;
+      if (card.value === 'A') return 11;
+      return parseInt(card.value);
+    }
+
+    // Подсчёт очков с учётом туза
+    function calculateScore(cards) {
+      let score = cards.reduce((sum, card) => sum + getCardValue(card), 0);
+      // Если есть тузы и перебор — меняем значение туза на 1
+      const aces = cards.filter(c => c.value === 'A');
+      for (let ace of aces) {
+        if (score > 21) score -= 10;
+      }
+      return score;
+    }
+
+    // Отображение карт
+    function renderCards() {
+      playerCardsEl.textContent = playerCards.map(c => `${c.value}${c.suit}`).join(' ');
+      dealerCardsEl.textContent = dealerCards.map(c => `${c.value}${c.suit}`).join(' ');
+      playerScoreEl.textContent = calculateScore(playerCards);
+      dealerScoreEl.textContent = calculateScore(dealerCards);
+    }
+
+    // Ход дилера
+    function dealerPlay() {
+      while (calculateScore(dealerCards) < 17) {
+        dealerCards.push(deck.pop());
+      }
+      renderCards();
+      const playerScore = calculateScore(playerCards);
+      const dealerScore = calculateScore(dealerCards);
+
+      let result = '';
+      if (dealerScore > 21 || playerScore > dealerScore) {
+        result = '🎉 Ты выиграл!';
+      } else if (playerScore < dealerScore) {
+        result = '💀 Ты проиграл!';
+      } else {
+        result = '🤝 Ничья!';
+      }
+
+      alert(result);
+      endGame();
+    }
+
+    // Конец игры
+    function endGame() {
+      hitBtn.disabled = true;
+      standBtn.disabled = true;
+      startBtn.disabled = false;
+    }
+
+    // Начало новой игры
+    function startGame() {
+      createDeck();
+      playerCards = [deck.pop(), deck.pop()];
+      dealerCards = [deck.pop(), deck.pop()];
+
+      renderCards();
+      startBtn.disabled = true;
+      hitBtn.disabled = false;
+      standBtn.disabled = false;
+
+      // Проверка на блэкджек
+      if (calculateScore(playerCards) === 21) {
+        alert('✨ Блэкджек! Ты выиграл!');
+        endGame();
+      }
+    }
+
+    // Обработчики кнопок
+    startBtn.addEventListener('click', startGame);
+    hitBtn.addEventListener('click', () => {
+      playerCards.push(deck.pop());
+      renderCards();
+      if (calculateScore(playerCards) > 21) {
+        alert('💔 Перебор! Ты проиграл!');
+        endGame();
+      }
+    });
+    standBtn.addEventListener('click', () => {
+      dealerPlay();
+    });
+  </script>
 </body>
 </html>
